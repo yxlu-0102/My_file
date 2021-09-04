@@ -155,3 +155,72 @@ $ git remote rm origin
 $ git clone git@github.com:yourname/your_repository.git
 ```
 
+## 分支管理
+
+### 创建与合并分支
+
+在 Git 里，主分支是 `master` 分支，`HEAD` 严格来说不是指向提交，而是指向 `master` ， `master` 指向提交。
+
+创建一个新的分支，比如 `dev` 时，Git 新建了一个指针叫 `dev` ，指向 `master` 相同的提交，再把`HEAD` 指向 
+
+ `dev` ，就表示当前分支在 `dev` 上。
+
+从现在开始，对工作区的修改和提交就是针对 `dev` 分支了。当在 `dev` 上的工作完成了，就把 `master` 指针指向 `dev` ，就完成了合并。
+
+- 首先创建 `dev` 分支：
+
+  ```
+  $ git checkout -b dev
+  相当于
+  $ git branch dev
+  $ git checkout dev 
+  ```
+
+- 用 `git branch` 命令查看当前分支
+
+  ```
+  $ git branch
+  *dev
+   master
+  ```
+
+-  `dev` 的工作完成后，切换回 `master` 分支：
+
+  ```
+  git checkout master
+  ```
+
+  此时 `readme.txt` 不见了。
+
+- 把 `dev` 的工作合并到 `master` 分支上：
+
+  ```
+  git merge dev
+  ```
+
+- 合并完成后，可以删除 `dev` 分支：
+
+  ```
+  git branch -d dev 
+  ```
+
+#### SWITCH
+
+最新版本的 Git 提供了新的 `git switch` 命令来切换分支
+
+创建并切换到新的 `dev` 分支，可以使用：
+
+```
+$ git switch -c dev
+```
+
+直接切换到已有的 `master` 分支，可以使用：
+
+```
+$ git switch master
+```
+
+### 解决冲突
+
+使用 `git log --graph` 命令可以看到分支合并图
+
