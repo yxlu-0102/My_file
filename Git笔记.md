@@ -93,7 +93,7 @@
   $ git commit -m "remove test.txt"
   ```
 
-  
+  然后用命令 `git push` 删除远程库中的文件。
 
 - 如果删错了，但是版本库里还有，可以
 
