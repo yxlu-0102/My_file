@@ -222,5 +222,172 @@ $ git switch master
 
 ### 解决冲突
 
-使用 `git log --graph` 命令可以看到分支合并图
+解决冲突就是把 Git 合并失败的内容手动编辑成我们希望的内容，再提交。
+
+使用 `git log --graph` 命令可以看到分支合并图。
+
+### 分支管理策略
+
+通常合并分支时，如果可能，Git 会用 `Fast forward` 模式，但是在删除分支后，就会丢掉分支信息。
+
+若要强制禁用 `Fast forward` 模式，Git 会在合并时产生一个新的 commit，这样在分支历史上就能看到分支信息。
+
+合并时使用 `--no-ff` 方式
+
+```
+$ git switch -c dev
+...
+$ git merge --no-ff -m "merge with no-ff" dev
+```
+
+### Bug 分支
+
+每个 Bug 都可以通过一个新的临时分支来修复，但当出现 Bug，但是正在 `dev` 上进行的工作还未提交。
+
+Git 提供了一个 `stash` 功能，可以先把工作现场储藏起来，等恢复现场后继续工作。
+
+恢复有两个办法：
+
+- 用 `git stash apply` 恢复，还需要用 `git stash drop` 来删除；
+- 用 `git stash pop`，恢复的同时删除。可以多次 `stash` ，恢复的时候先用 `git stash list` 查看，然后恢复指定的 stash。
+
+可以多次 `stash` ，恢复的时候先用 `git stash list` 查看，然后恢复指定的 stash。
+
+为了修复 `dev` 上相同的 Bug， Git提供了一个 `cherry-pick` 命令，能够复制一个相同的提交到当前分支：
+
+```
+$ git cherry-pick 4c805e2
+```
+
+### Feature 分支
+
+如果要删除一个没有被合并过的分支，可以通过 `git branch -D <name>` 命令。
+
+### 多人协作
+
+当从远程仓库克隆时，Git 自动把本地的 `master` 和远程的 `master` 分支对应起来了，并且，远程仓库的默认名称是 `origin`，可以用 `git remote -v` 查看远程仓库信息。
+
+#### 推送分支
+
+```
+$ git push origin master
+$ git push origin dev
+```
+
+#### 抓取分支
+
+```
+$ git clone git@github.com:your_name/your_respository.git 
+```
+
+克隆时，只能看到本地的 `master` 分支，需要在 `dev` 分支上开发时，必须创建远程 `origin` 的 `dev` 分支到本地：
+
+```
+$ git checkout -b dev origin/dev
+```
+
+并且把 `dev` 分支 push 到远程：
+
+```
+$ git push origin dev
+```
+
+但如果此时有人对同样的文件作了修改，就会推送失败。解决办法是用 `git pull` 把最新的提交从 `origin/dev` 抓取下来，然后在本地合并，解决冲突，再推送：
+
+```
+$ git pull
+```
+
+但是失败了，因为没有指定本地 `dev` 分支与远程 `origin/dev` 分支的链接：
+
+```
+$ git branch --set-upstream-to=origin/dev dev
+```
+
+然后再 pull，解决冲突后，再提交并 push。
+
+## 标签管理
+
+发布一个版本时，通常先在版本库里打一个标签，标签是版本库的一个快照，其实就是指向某个 `commit` 的指针。
+
+### 创建标签
+
+首先切换到需要打标签的分支上：
+
+```
+$ git checkout branch
+```
+
+再用命令 `git tag <name>` 打一个标签：
+
+```
+$ git tag v1.0
+```
+
+如果想给之前的 commit 打标签，需要先找到历史提交的 commit id：
+
+```
+$ git log --pretty=online --abbrev-commit
+```
+
+比如找到的 id 是 f52c6t33：
+
+```
+$ git tag v0.9 f52c6t33
+```
+
+可以用 `git tag` 命令查看标签，还可以创建带有说明的标签，用 `-a` 指定标签名，`-m` 指定说明文字，用 `git show <tagname>` 可以看到说明文字。
+
+### 操作标签
+
+删除标签：
+
+没有推送到远程的本地标签：
+
+```
+$ git tag -d v0.1
+```
+
+将标签推送到远程：
+
+```
+$ git push origin v0.1
+```
+
+或者一次性推送全部尚未推送到远程的标签：
+
+```
+$ git push origin --tags
+```
+
+删除已经推送到远程的标签，需要先从本地删除，再从远程删除：
+
+```
+$ git tag -d v0.9
+$ git push origin:refs/tags/v.9
+```
+
+## 使用 Github
+
+- 在 github 上可以任意 Fork 开源仓库；
+- 自己拥有 Fork 后仓库的读写权限；
+- 可以推送 pull request 给官方仓库来贡献代码。
+
+## 自定义 Git 
+
+让 Git 显示颜色：
+
+```
+$ git config --global color.ui true
+```
+
+配置别名：
+
+```
+$ git config --global alias.st status
+```
+
+```
+$ git config --global alias.lg "log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit"
+```
 
